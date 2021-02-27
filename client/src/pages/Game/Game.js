@@ -13,7 +13,7 @@ function Game(props) {
     const [players, setplayers] = useState(props.players)
     const [roundCount, setroundCount] = useState(1)
     const [roundOver, setroundOver] = useState(false)
-//test
+    
     useEffect(() => {
         socket.on("roundPool", (data) => {
             console.log(data)
@@ -21,8 +21,6 @@ function Game(props) {
             setstreamingStatus(data.answers)
         });
         socket.on("roomData", ({ users, name }) => {
-            let test = 0
-            console.log(test+1)
             setanswerNotification(`${name} answered right!`)
             setuserInteraction('none')
             setroundOver(true)
@@ -36,37 +34,11 @@ function Game(props) {
         });
     }, [])
 
-    useEffect(() => {
-        fetchList()
-    }, [])
-
-
     const play = () => {
         generatePlaylist()
         setanswerNotification(null)
         setroundOver(false)
         setroundCount(roundCount +1)
-
-        // let videos = props.playlist
-        // //shuffle video list
-        // let shuffled = videos.sort(() => 0.5 - Math.random())
-        // //select random video to play
-        // let answerRandomizer = [null, '?autoplay=1', null, null].sort(() => 0.5 - Math.random())
-        // let active = []
-        // //songs shuffeled
-        // shuffled.forEach((element, index) => {
-        //     if (index < 4) {
-        //         active.push(element)
-        //         //pool of songs that used in the game
-        //         songsPool.push(element)
-        //         shuffled.splice(index, 1);
-        //     }
-        // });
-        // //songs currently in the game
-        // socket.emit('activeSongs', { active: active, answers: answerRandomizer }, (error) => {
-        //     if (error) { console.log(error) }
-        // })
-
     }
 
 
@@ -90,7 +62,7 @@ function Game(props) {
     return (
         <div>
             {(activeSongs && props.leader) && <button onClick={play}>{activeSongs.length ? 'NEXT' : 'PLAY'}</button>}
-            <p>{fullList.length}</p>
+            <p>amount of songs left {fullList.length}</p>
             <p>name - score</p>
             {players.map((player, index) => {
                 return (
@@ -105,7 +77,7 @@ function Game(props) {
                 return (
                     <div key={index} id={index} style={{ 'pointerEvents': `${userInteraction}` }}>
                         <div onClick={(e) => { userGuessed(e, video.snippet.title, video.snippet.resourceId.videoId) }} style={{ 'cursor': 'pointer' }}>{video.snippet.title}
-                            <iframe title={index} width="50" height="50" src={`https://www.youtube.com/embed/${video.snippet.resourceId.videoId}${streamingStatus[index]}`}></iframe>
+                            <iframe title={index} width="50" height="50" src={`https://www.youtube.com/embed/${video.snippet.resourceId.videoId}${streamingStatus[index]}&start=25&end=55&disablekb=1`}></iframe>
                         </div>
                     </div>
                 )

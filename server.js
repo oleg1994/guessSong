@@ -18,8 +18,9 @@ io.on('connection', socket => {
   console.log('new connection', socket.id)
 
 
-  socket.on('join', ({ name, room }, callback) => {
-    const { error, user } = addUser({ id: socket.id, name, room });
+  socket.on('join', ({ name, room,country }, callback) => {
+    // console.log(country)
+    const { error, user } = addUser({ id: socket.id, name, room,country });
     if (error) return callback(error);
 
     socket.join(user.room)
@@ -34,7 +35,8 @@ io.on('connection', socket => {
 
   socket.on('requestStart', (ss, callback) => {
     const { room } = getUser(socket.id)
-    io.to(room).emit('startGame', { start: true })
+    console.log(room)
+    io.to(room).emit('startGame', { start: true, })
   })
   socket.on('activeSongs', (data, callback) => {
     const { room } = getUser(socket.id)

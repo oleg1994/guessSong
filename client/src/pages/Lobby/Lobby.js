@@ -4,6 +4,8 @@ import { socket } from '../../Utilities/socket'
 import { useLocation } from "react-router-dom";
 import { fetchList } from '../../Utilities/Fetch';
 import Game from '../Game/Game';
+import LobbyStart from '../../components/LobbyStart/LobbyStart';
+import PlayerList from '../../components/PlayerList/PlayerList';
 
 function Lobby() {
     let location = useLocation();
@@ -12,6 +14,11 @@ function Lobby() {
     const [leader, setLeader] = useState(false)
     const [playlist, setPlaylist] = useState(null)
     const [gamePlaying, setgamePlaying] = useState(false)
+    const [listUrl, setlistUrl] = useState('')
+    const [safetoStart, setsafetoStart] = useState(false)
+    const [loading, setloading] = useState(false)
+
+
 
     useEffect(() => {
         socket.emit('join', quaryUrl, (error) => {
@@ -20,19 +27,9 @@ function Lobby() {
             }
         })
         socket.on("roomData", ({ users }) => {
-            console.log(users)
             setPlayers(users);
         });
-        socket.on("startGame", ({ start }) => {
-            fetchList().then((data) => {
-                console.log(data)
-                setPlaylist(data)
-            })
-            setgamePlaying(start)
-
-        });
         socket.on("private", (role) => {
-            console.log(role)
             setLeader(role.leader)
         });
 
@@ -42,28 +39,31 @@ function Lobby() {
         }
     }, [quaryUrl])
 
-    const start = () => {
-        socket.emit('requestStart', (error) => {
-        })
+    useEffect(() => {
+        socket.on("startGame", ({ start }) => {
+            setgamePlaying(start)
+            // fetchList(listUrl)
+            console.log(fetchList(listUrl))
+
+        });
+    }, [listUrl])
+
+
+
+    const playlistInput = (url) => {
+        setlistUrl(url)
     }
+
 
     return (
         <div>
             {gamePlaying ?
-                <Game players={players} playlist={playlist} leader={leader} />
+                <Game players={players} playlist={playlist} leader={leader} loading={loading} />
                 :
-                <div>
-                    <h2>Players :{players.length}</h2>
-                    <h3>waiting for players</h3>
-                    <ol>
-                        {players && players.map((player, index) => {
-                            return (
-                                <li key={index}>{player.name} - {player.points}</li>
-                            )
-                        })}
-                        {leader && <button type="submit" onClick={(e) => { start() }}>start the game</button>}
-                    </ol>
-                </div>
+                <>
+                    <PlayerList players={players} />
+                    <LobbyStart leader={leader} playlistInput={playlistInput} listUrl={listUrl} safetoStart={safetoStart} />
+                </>
             }
         </div>
     );
